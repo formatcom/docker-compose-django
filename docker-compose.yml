@@ -1,0 +1,32 @@
+varsion: "3"
+services:
+  app:
+    extends:
+      file: base.yml
+      service: app
+    build:
+      args:
+        - DJANGO_ENV=dev
+
+  worker:
+    extends:
+      file: base.yml
+      service: worker
+    build:
+      args:
+        - DJANGO_ENV=dev
+
+  beat:
+    extends:
+      file: base.yml
+      service: beat
+    build:
+      args:
+        - DJANGO_ENV=dev
+
+  postgres:
+    extends:
+      file: base.yml
+      service: postgres
+    volumes:
+      - db-data:/var/lib/postgresql/data/

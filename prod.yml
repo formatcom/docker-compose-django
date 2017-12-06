@@ -1,0 +1,46 @@
+varsion: "3"
+services:
+  nginx:
+    extends:
+      file: base.yml
+      service: nginx
+    ports:
+      - "80:80"
+
+  app:
+    extends:
+      file: base.yml
+      service: app
+    build:
+      args:
+        - DJANGO_ENV=prod
+
+  worker:
+    extends:
+      file: base.yml
+      service: worker
+    build:
+      args:
+        - DJANGO_ENV=prod
+
+  beat:
+    extends:
+      file: base.yml
+      service: beat
+    build:
+      args:
+        - DJANGO_ENV=prod
+
+  postgres:
+    extends:
+      file: base.yml
+      service: postgres
+    volumes:
+      - ./db-data:/var/lib/postgresql/data/
+
+  redis:
+    extends:
+      file: base.yml
+      service: redis
+    volumes:
+      - ./redis-data:/data

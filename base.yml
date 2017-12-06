@@ -1,0 +1,60 @@
+varsion: "3"
+services:
+  app:
+    build: ./app
+    volumes:
+      - ./app:/app
+    links:
+      - redis
+      - postgres
+    env_file: .env
+    command: sh ./scripts/app.sh
+
+  nginx:
+    build: ./nginx
+    ports:
+      - "8000:80"
+    links:
+      - app
+    volumes:
+      - ./app:/app
+
+  postgres:
+    image: postgres:10.1
+    env_file: .env
+
+  redis:
+    image: redis:4.0
+
+  worker:
+    build: ./app
+    links:
+      - redis
+      - postgres
+    volumes:
+      - ./app:/app
+    env_file: .env
+    command: su -m app -c "celery -A $PROJECT_NAME worker -l info"
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 30s
+
+  beat:
+    build: ./app
+    links:
+      - redis
+      - postgres
+    volumes:
+      - ./app:/app
+    env_file: .env
+    command: su -m app -c "celery -A $PROJECT_NAME beat -l info -S django"
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 30s
+
